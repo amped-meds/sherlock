@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/home/arut/gitcloned/sherlock/venv/bin/python3
 
 """
 Sherlock: Find Usernames Across Social Networks Module
@@ -131,7 +131,9 @@ def interpolate_string(input_object, username):
     if isinstance(input_object, str):
         return input_object.replace("{}", username)
     elif isinstance(input_object, dict):
-        return {k: interpolate_string(v, username) for k, v in input_object.items()}
+        return {
+            k: interpolate_string(v, username) for k, v in input_object.items()
+        }
     elif isinstance(input_object, list):
         return [interpolate_string(i, username) for i in input_object]
     return input_object
@@ -360,7 +362,9 @@ def sherlock(
         # Retrieve future and ensure it has finished
         future = net_info["request_future"]
         r, error_text, exception_text = get_response(
-            request_future=future, error_type=error_type, social_network=social_network
+            request_future=future,
+            error_type=error_type,
+            social_network=social_network,
         )
 
         # Get response time for response of our request.
@@ -388,8 +392,8 @@ def sherlock(
         # be highly targetted. Comment at the end of each fingerprint to
         # indicate target and date fingerprinted.
         WAFHitMsgs = [
-            '.loading-spinner{visibility:hidden}body.no-js .challenge-running{display:none}body.dark{background-color:#222;color:#d9d9d9}body.dark a{color:#fff}body.dark a:hover{color:#ee730a;text-decoration:underline}body.dark .lds-ring div{border-color:#999 transparent transparent}body.dark .font-red{color:#b20f03}body.dark', # 2024-05-13 Cloudflare
-            '{return l.onPageView}}),Object.defineProperty(r,"perimeterxIdentifiers",{enumerable:' # 2024-04-09 PerimeterX / Human Security
+            '.loading-spinner{visibility:hidden}body.no-js .challenge-running{display:none}body.dark{background-color:#222;color:#d9d9d9}body.dark a{color:#fff}body.dark a:hover{color:#ee730a;text-decoration:underline}body.dark .lds-ring div{border-color:#999 transparent transparent}body.dark .font-red{color:#b20f03}body.dark',  # 2024-05-13 Cloudflare
+            '{return l.onPageView}}),Object.defineProperty(r,"perimeterxIdentifiers",{enumerable:',  # 2024-04-09 PerimeterX / Human Security
         ]
 
         if error_text is not None:
@@ -448,7 +452,8 @@ def sherlock(
         else:
             # It should be impossible to ever get here...
             raise ValueError(
-                f"Unknown Error Type '{error_type}' for " f"site '{social_network}'"
+                f"Unknown Error Type '{error_type}' for "
+                f"site '{social_network}'"
             )
 
         # Notify caller about results of query.
@@ -652,7 +657,7 @@ def main():
         "--local",
         "-l",
         action="store_true",
-        default=False,
+        default=True,
         help="Force the use of the local data.json file.",
     )
 
@@ -723,7 +728,11 @@ def main():
     try:
         if args.local:
             sites = SitesInformation(
-                os.path.join(os.path.dirname(__file__), "resources/data.json")
+                # os.path.join(os.path.dirname(__file__), "resources/data.json")
+                os.path.join(
+                    os.path.dirname(__file__),
+                    "/home/arut/gitcloned/sherlock/sherlock/resources/data.json",
+                )
             )
         else:
             sites = SitesInformation(args.json_file)
@@ -764,7 +773,10 @@ def main():
 
     # Create notify object for query results.
     query_notify = QueryNotifyPrint(
-        result=None, verbose=args.verbose, print_all=args.print_all, browse=args.browse
+        result=None,
+        verbose=args.verbose,
+        print_all=args.print_all,
+        browse=args.browse,
     )
 
     # Run report on all specified users.
@@ -803,7 +815,9 @@ def main():
                 if dictionary.get("status").status == QueryStatus.CLAIMED:
                     exists_counter += 1
                     file.write(dictionary["url_user"] + "\n")
-            file.write(f"Total Websites Username Detected On : {exists_counter}\n")
+            file.write(
+                f"Total Websites Username Detected On : {exists_counter}\n"
+            )
 
         if args.csv:
             result_file = f"{username}.csv"
@@ -813,7 +827,9 @@ def main():
                 os.makedirs(args.folderoutput, exist_ok=True)
                 result_file = os.path.join(args.folderoutput, result_file)
 
-            with open(result_file, "w", newline="", encoding="utf-8") as csv_report:
+            with open(
+                result_file, "w", newline="", encoding="utf-8"
+            ) as csv_report:
                 writer = csv.writer(csv_report)
                 writer.writerow(
                     [
@@ -830,7 +846,8 @@ def main():
                     if (
                         args.print_found
                         and not args.print_all
-                        and results[site]["status"].status != QueryStatus.CLAIMED
+                        and results[site]["status"].status
+                        != QueryStatus.CLAIMED
                     ):
                         continue
 
@@ -887,7 +904,9 @@ def main():
                     "response_time_s": response_time_s,
                 }
             )
-            DataFrame.to_excel(f"{username}.xlsx", sheet_name="sheet1", index=False)
+            DataFrame.to_excel(
+                f"{username}.xlsx", sheet_name="sheet1", index=False
+            )
 
         print()
     query_notify.finish()
